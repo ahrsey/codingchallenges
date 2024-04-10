@@ -1,24 +1,45 @@
 #include <stdio.h>
-#include <sys/stat.h>
 
-// char *fgets(char s[restrict .size], int size, FILE *restrict stream);
-// https://codingchallenges.fyi/challenges/challenge-wc#help-others-by-sharing-your-solutions
 int main(int argc, char** argv) {
-  for (int i = 0; i < argc; ++i) {
-    switch (argv[i][1]) {
-      case 'c': 
-        {
-          struct stat sb = {0};
-          char* filename = argv[i+1];
-          if (stat(filename, &sb) == -1) {
-            perror("stat");
-            return 1;
-          }
-          printf("%lld %s\n", (long long)sb.st_size, filename);
-        }
-      default: break;
-    }
+  if (argc < 2) {
+    printf("Requires two arguments.");
+    return 1;
   }
 
+  char* filename = argv[2];
+  FILE *fp = {0};
+  fp = fopen(filename, "r");
+
+  switch (argv[1][1]) {
+    case 'c': 
+      {
+        int bytes = 0;
+
+        while (fgetc(fp) != EOF) ++bytes;
+
+        printf("%d %s", bytes, filename);
+      }
+    case 'l': 
+      {
+        int lines = 0;
+        char string[1000];
+
+        while (fgets(string, 1000, fp)) ++lines;
+
+        printf("%d %s", lines, filename);
+      }
+    case 'w': 
+      {
+        int words = 0;
+        char string[1000];
+
+        while (fscanf(fp, "%s", string) != EOF) words++;
+
+        printf("%d %s", words, filename);
+      }
+    default: break;
+  }
+
+  fclose(fp);
   return 0;
 }
